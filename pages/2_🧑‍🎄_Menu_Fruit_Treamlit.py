@@ -20,13 +20,6 @@ BLUE = (255, 178, 50)
 YELLOW = (0, 255, 255)
 
 
-try:
-    if st.session_state["LoadModel"] == True:
-        print('Đã load model')
-except:
-    st.session_state["LoadModel"] = True
-    st.session_state["Net"] = cv2.dnn.readNet("traicay5s.onnx") 
-    print('Load lần đầu')
 
 
 
@@ -96,48 +89,28 @@ def post_process(input_image, outputs, classes):
         draw_label(input_image, label, left, top)
     return input_image
 
-# def main():
-#     st.title("Digital Image Processing")
-#     uploaded_image = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png", "bmp", "gif", "tif"])
-#     if uploaded_image is not None:
-#         imgin = cv2.imdecode(np.fromstring(uploaded_image.read(), np.uint8), 1)
-#         st.image(imgin, channels="BGR", caption="Uploaded Image")
-#         if st.button("Predict"):
-#             classes_file = "loaiqua.txt"
-#             classes = None
-#             with open(classes_file, 'rt') as f:
-#                 classes = f.read().rstrip('\n').split('\n')
-#             model_weights = "traicay5s.onnx"
-#             net = cv2.dnn.readNet(model_weights)
-#             # Process image
-#             detections = pre_process(imgin,  st.session_state["Net"])
-#             img = post_process(imgin.copy(), detections, classes)
-
-#             t, _ = net.getPerfProfile()
-#             label = 'Inference time: %.2f ms' % (t * 1000.0 / cv2.getTickFrequency())
-
-#             st.image(img, channels="BGR", caption="Processed Image")
-#             st.write(label)
-
-# if __name__ == "__main__":
-#     main()
-
-if __name__ == '__main__':
-    # Load class names.
-    classesFile = "loaiqua.txt"
-    classes = None
-    with open(classesFile, 'rt') as f:
-        classes = f.read().rstrip('\n').split('\n')
-    st.title('Nhận diện trái cây')
-    uploaded_image = st.file_uploader('Upload File IMG', type=['jpg', 'png', 'jpeg'])
-    frame = None
-    # Load image.
+def main():
+    st.title("Digital Image Processing")
+    uploaded_image = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png", "bmp", "gif", "tif"])
     if uploaded_image is not None:
-        frame = cv2.imdecode(np.frombuffer(uploaded_image.read(), np.uint8), 1)
-        
-        # Process image.
-        detections = pre_process(frame, st.session_state["Net"])
-        img = post_process(frame.copy(), detections)
-        st.image(uploaded_image, channels="BGR", caption='Uploaded Image', use_column_width=True)
-        if st.button('Predict'):
-            st.image(img, channels="BGR", caption="Predicted Image",use_column_width=True)
+        imgin = cv2.imdecode(np.fromstring(uploaded_image.read(), np.uint8), 1)
+        st.image(imgin, channels="BGR", caption="Uploaded Image")
+        if st.button("Predict"):
+            classes_file = "loaiqua.txt"
+            classes = None
+            with open(classes_file, 'rt') as f:
+                classes = f.read().rstrip('\n').split('\n')
+            model_weights = "traicay5s.onnx"
+            net = cv2.dnn.readNet(model_weights)
+            # Process image
+            detections = pre_process(imgin, net)
+            img = post_process(imgin.copy(), detections, classes)
+
+            t, _ = net.getPerfProfile()
+            label = 'Inference time: %.2f ms' % (t * 1000.0 / cv2.getTickFrequency())
+
+            st.image(img, channels="BGR", caption="Processed Image")
+            st.write(label)
+
+if __name__ == "__main__":
+    main()
